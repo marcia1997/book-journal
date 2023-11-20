@@ -8,6 +8,11 @@ const BookPageContainer = styled.div`
   margin: 0 auto;
 `;
 
+const TitleInput = styled.input`
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+`;
+
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 10px;
@@ -17,12 +22,10 @@ const SectionTitle = styled.h2`
   margin-bottom: 20px;
 `;
 
-const BookCover = styled.img`
- 
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 20px;
+const CoverImageInput = styled.input`
+  margin-bottom: 10px;
 `;
+
 
 const Rectangle = styled.div`
   display: inline-block;
@@ -105,6 +108,9 @@ const DatePickerStyled = styled(DatePicker)`
 `;
 
 const BookPage = () => {
+  const [bookTitle, setBookTitle] = useState('');
+  const [coverImage, setCoverImage] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [rating, setRating] = useState(0);
@@ -118,25 +124,55 @@ const BookPage = () => {
     setReview(event.target.value);
   };
 
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+  
+
+  const handleInputSubmit = () => {
+    setBookTitle(inputValue);
+  };
+
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files[0];
+    setCoverImage(file);
+  };
+
+
   const handleSubmit = () => {
     // Implement your submission logic here
+    console.log('Book title:',bookTitle);
     console.log('Start Date:', startDate);
     console.log('End Date:', endDate);
     console.log('Rating:', rating);
     console.log('Review:', review);
-    // You can send the data to your backend or perform any other actions
+    console.log('Cover Image File:', coverImage);
   };
 
   return (
     <BookPageContainer>
-      <SectionTitle>Book Title</SectionTitle>
-      <BookCover src="https://example.com/path/to/book/cover.jpg" alt="Book Cover" />
-
-      <Rectangle>
-        <ImageButton onClick={handleButtonClick}>
-          <BookImage src="https://example.com/path/to/your/image.jpg" alt="Button Image" />
-        </ImageButton>
-      </Rectangle>
+     {bookTitle ? (
+        <SectionTitle>{bookTitle}</SectionTitle>
+      ) : (
+        <>
+          <TitleInput
+            type="text"
+            placeholder="Enter book title..."
+            value={inputValue}
+            onChange={handleInputChange}
+          />
+          <button onClick={handleInputSubmit}>Submit</button>
+          
+         <CoverImageInput
+         type="file"
+         accept="image/*"
+         onChange={handleCoverImageChange}
+       />
+       <button onClick={handleInputSubmit}>Submit</button>
+     </>
+      )}
+      
+      
 
       <DateContainer>
         <DateLabel>
