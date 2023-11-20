@@ -23,6 +23,7 @@ const SectionTitle = styled.h2`
 `;
 
 const CoverImageInput = styled.input`
+  display:flex;
   margin-bottom: 10px;
 `;
 
@@ -217,9 +218,5 @@ const BookPage = () => {
   );
 };
 
-const handleButtonClick = () => {
-  // Add your button click logic here
-  console.log('Button Clicked!');
-};
 
 export default BookPage;
