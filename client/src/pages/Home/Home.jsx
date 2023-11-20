@@ -1,6 +1,8 @@
 // src/pages/Home.js
 import React from 'react';
 import styled from 'styled-components';
+import {Link} from 'react-router-dom';
+
 
 // Define styled components using the provided styles
 const HomeContainer = styled.div`
@@ -26,19 +28,6 @@ const Title = styled.h1`
   font-size: 3.75rem;
 `;
 
-const SubTitle = styled.h2`
-  color: #3333cc;
-  margin-bottom: 20px;
-  font-size: 3rem;
-`;
-
-const IntroParagraph = styled.p`
-  color: #3333cc;
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  font-weight: 300;
-  line-height: 1.5;
-`;
 
 const BookGallery = styled.ul`
   list-style: none;
@@ -61,46 +50,19 @@ const BookImage = styled.img`
   object-fit: cover;
 `;
 
-const Quote = styled.li`
-  margin-bottom: 20px;
-  background-color: #fff;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.75rem;
-  list-style: none;
+const Button = styled.button`
+  display: inline-block;
+  color: #BF4F74;
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border: 2px solid #BF4F74;
+  border-radius: 3px;
+  display: block;
 `;
 
-const QuoteText = styled.blockquote`
-  color: #3333cc;
-  position: relative;
-  line-height: 1.5;
-  padding: 30px 56px 62px 56px;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  text-align: center;
 
-  &::before {
-    position: absolute;
-    content: open-quote;
-    display: block;
-    font-size: 6.5rem;
-    line-height: 0;
-    left: 13px;
-    top: 50px;
-  }
 
-  &::after {
-    position: absolute;
-    display: block;
-    font-size: 6.5rem;
-    right: 24px;
-    bottom: 16px;
-    content: close-quote;
-  }
-`;
 
 const Home = () => {
   return (
@@ -136,14 +98,15 @@ const Home = () => {
         <BookItem className="books book--3">
           <BookImage src="https://images-na.ssl-images-amazon.com/images/I/51ya6G0fWUL._SX324_BO1,204,203,200_.jpg" alt="Natives Akala" />
         </BookItem>
- 
+
+       <Link style={{textDecoration: 'none'}} to='/book'>
+          <Button className="button" >
+           Add book
+          </Button>
+        </Link>
+
       </BookGallery>
 
-      
-      
-      
-
-      {/* Add more BookItems and Quotes as needed */}
     </HomeContainer>
   );
 };
