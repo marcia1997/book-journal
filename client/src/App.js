@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home/Home.jsx';
 import Login from './pages/Login/Login.jsx';
 import Register from './pages/Register/Register.jsx';
-import SingleBook from './pages/SingleBook/SingleBook.jsx';
+import AddBook from './pages/AddBook/AddBook.jsx';
 
 const App = () => {
   return (
@@ -14,7 +14,7 @@ const App = () => {
         <Route path="/home" element={<Home/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/book" element={<SingleBook/>} />
+        <Route path="/book" element={<AddBook/>} />
       </Routes>
     </Router>
   );
