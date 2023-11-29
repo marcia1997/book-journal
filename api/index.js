@@ -23,8 +23,8 @@ connection.once('open', () => {
 /*const authRouter = require('./routes/auth');
 const booksRouter = require('./routes/books');*/
 
-/*app.use('/auth', authRouter);
-app.use('/books', booksRouter);*/
+pp.use('/auth', authRouter);
+app.use('/books', booksRouter);
 
 // Start the server
 app.listen(port, () => {
