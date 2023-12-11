@@ -1,14 +1,14 @@
-// src/pages/Register.js
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import styled from "styled-components";
 
 const RegisterContainer = styled.div`
   background-color: white;
   color: black;
   padding: 20px;
   max-width: 400px;
-  height:600px;
+  height: 600px;
   margin: 0 auto;
 `;
 
@@ -43,41 +43,85 @@ const GradientButton = styled.button`
   border-radius: 4px;
 `;
 
+const RegisterLink = styled(Link)`
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  text-decoration: none;
+  color: #3333cc;
+  font-weight: bold;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ErrorText = styled.span`
+  color: red;
+  margin-top: 10px;
+`;
+
 const Register = () => {
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
+    username: "",
+    email: "",
+    password: "",
   });
+
+  const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       [name]: value,
-    });
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your registration logic here using the formData state
-    console.log('Registration form submitted:', formData);
+    setError(false);
+
+    try {
+      const res = await axios.post("http://localhost:5000/auth/register", formData);
+      if (res.data) {
+        navigate("/login");
+      }
+    } catch (err) {
+      setError(true);
+    }
   };
 
   return (
     <RegisterContainer>
-      <Title>Register Page</Title>
+      <Title>Register</Title>
       <StyledForm onSubmit={handleSubmit}>
-        <StyledInput type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} />
-        <StyledInput type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} />
-        <StyledInput type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} />
+        <StyledInput
+          type="text"
+          placeholder="Enter your username..."
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+        />
+        <StyledInput
+          type="text"
+          placeholder="Enter your email..."
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+        <StyledInput
+          type="password"
+          placeholder="Enter your password..."
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+        />
         <GradientButton type="submit">Register</GradientButton>
       </StyledForm>
-
-      {/* Link to the Login page */}
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+      <RegisterLink to="/login">Login</RegisterLink>
+      {error && <ErrorText>Something went wrong!</ErrorText>}
     </RegisterContainer>
   );
 };
