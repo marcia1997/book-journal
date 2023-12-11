@@ -1,16 +1,14 @@
-// src/pages/Login.js
-import React from 'react';
+import React, { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useContext, useRef } from "react";
-import { Link } from "react-router-dom";
 import styled from 'styled-components';
 
 const LoginContainer = styled.div`
-  background:white;
+  background-color: white;
   color: black;
   padding: 20px;
   max-width: 400px;
-  height: 800px;
+  height: 400px;
   margin: 0 auto;
 `;
 
@@ -19,6 +17,7 @@ const Title = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 20px;
+  text-align: center;
 `;
 
 const StyledForm = styled.form`
@@ -44,21 +43,68 @@ const GradientButton = styled.button`
   border-radius: 4px;
 `;
 
+const LoginLink = styled(Link)`
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  text-decoration: none;
+  color: #3333cc;
+  font-weight: bold;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ErrorText = styled.span`
+  color: red;
+  margin-top: 10px;
+`;
+
 const Login = () => {
-  
+  const userRef = useRef();
+  const passwordRef = useRef();
+  const navigate = useNavigate();
+  const [error, setError] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post("http://localhost:5000/auth/login", {
+        username: userRef.current.value,
+        password: passwordRef.current.value,
+      });
+
+      if (res.data) {
+        navigate("/home"); // Adjust the path as needed
+      }
+    } catch (err) {
+      setError(true);
+      console.error(err);
+    }
+  };
+
   return (
     <LoginContainer>
       <Title>Login Page</Title>
-      <StyledForm>
-        <StyledInput type="text" name="username" placeholder="Username" />
-        <StyledInput type="password" name="password" placeholder="Password" />
-        <GradientButton type="submit">Login</GradientButton>
+      <StyledForm onSubmit={handleSubmit}>
+        <StyledInput
+          type="text"
+          placeholder="Enter your username..."
+          ref={userRef}
+        />
+        <StyledInput
+          type="password"
+          placeholder="Enter your password..."
+          ref={passwordRef}
+        />
+        <GradientButton type="submit">
+          Login
+        </GradientButton>
       </StyledForm>
-
-      {/* Link to the Register page */}
-      <p>
-        Don't have an account? <Link to="/register">Register</Link>
-      </p>
+      <LoginLink to="/register">Register</LoginLink>
+      {error && <ErrorText>Something went wrong!</ErrorText>}
     </LoginContainer>
   );
 };
