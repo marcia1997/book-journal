@@ -7,7 +7,7 @@ import Home from './pages/Home/Home.jsx';
 import Login from './pages/Login/Login.jsx';
 import Register from './pages/Register/Register.jsx';
 import AddBook from './pages/AddBook/AddBook.jsx';
-import Books from './components/books'
+import Books from './components/books.jsx';
 
 const App = () => {
   return (
