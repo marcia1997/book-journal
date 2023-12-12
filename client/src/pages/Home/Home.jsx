@@ -6,7 +6,6 @@ import Books from '../../components/books';
 
 // Define styled components using the provided styles
 const HomeContainer = styled.div`
-  background: url('https://example.com/path/to/home/image.jpg') center/cover no-repeat fixed;
   color: #333;
   padding: 20px;
   border-radius: 8px;
@@ -44,7 +43,7 @@ const Home = () => {
     <HomeContainer>
       <Title>My Bookshelf</Title>
 
-      <Books apiEndpoint="http://localhost:5000/api/books" />
+      <Books apiEndpoint="http://localhost:5000/books" />
 
       <Link style={{textDecoration: 'none'}} to='/book'>
         <Button className="button" >
