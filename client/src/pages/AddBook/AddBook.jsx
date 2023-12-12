@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styled from 'styled-components';
@@ -24,10 +25,9 @@ const SectionTitle = styled.h2`
 `;
 
 const CoverImageInput = styled.input`
-  display:flex;
+  display: flex;
   margin-bottom: 10px;
 `;
-
 
 const Rectangle = styled.div`
   display: inline-block;
@@ -36,8 +36,6 @@ const Rectangle = styled.div`
   border-radius: 8px;
   margin-bottom: 20px;
 `;
-
-
 
 const feelings = [
   { emoji: '😊', name: 'Happy' },
@@ -120,16 +118,9 @@ const BookPage = () => {
   const [selectedFeeling, setSelectedFeeling] = useState(null);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
+  const [error, setError] = useState('');
 
-
-  const statuses = [
-    'Wish',
-    'Currently Reading',
-    'Stop it',
-    'Read',
-  ];
-  
-
+  const statuses = ['Wish', 'Currently Reading', 'Stop it', 'Read'];
 
   const handleRatingChange = (event) => {
     setRating(parseInt(event.target.value, 10));
@@ -143,11 +134,9 @@ const BookPage = () => {
     setSelectedFeeling(event.target.value);
   };
 
-
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
-  
 
   const handleInputSubmit = () => {
     setBookTitle(inputValue);
@@ -161,21 +150,45 @@ const BookPage = () => {
   const handleStatusChange = (event) => {
     setSelectedStatus(event.target.value);
   };
-  const handleSubmit = () => {
-    // Implement your submission logic here
-    console.log('Book title:',bookTitle);
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
-    console.log('Rating:', rating);
-    console.log('Review:', review);
-    console.log('Cover Image File:', coverImage);
+
+  const handleSubmit = async () => {
+    if (!bookTitle) {
+      setError('Please enter a book title.');
+      return;
+    }
+
+    // Reset error if validation passes
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('bookTitle', bookTitle);
+      formData.append('startDate', startDate.toISOString());
+      formData.append('endDate', endDate.toISOString());
+      formData.append('rating', rating);
+      formData.append('review', review);
+      formData.append('coverImage', coverImage);
+
+      // Add more form data as needed
+
+      const response = await Axios.post('http://localhost:5000/api/books', formData, {
+      
+      });
+
+      console.log('Server response:', response.data);
+    } catch (error) {
+      console.error('Error submitting the form:', error);
+      setError('An error occurred while submitting the form.');
+    }
   };
 
   return (
     <BookPageContainer>
-     {bookTitle ? (
+      {bookTitle ? (
+        // Display the book title as a SectionTitle if available
         <SectionTitle>{bookTitle}</SectionTitle>
       ) : (
+        // Display the input fields if the book title is not set
         <>
           <TitleInput
             type="text"
@@ -184,52 +197,71 @@ const BookPage = () => {
             onChange={handleInputChange}
           />
           <button onClick={handleInputSubmit}>Submit</button>
-          
+
           <CoverImageInput
             type="file"
             accept="image/*"
             onChange={handleCoverImageChange}
           />
-          {coverImage && <BookImage src={URL.createObjectURL(coverImage)} alt="Selected Cover" />} 
+          {coverImage && (
+            <BookImage
+              src={URL.createObjectURL(coverImage)}
+              alt="Selected Cover"
+            />
+          )}
         </>
       )}
+
       <Rectangle>
-            <label>Book Status:</label>
-            <select value={selectedStatus} onChange={handleStatusChange}>
-              <option value="" disabled>Select status...</option>
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </Rectangle>
+        <label>Book Status:</label>
+        <select value={selectedStatus} onChange={handleStatusChange}>
+          <option value="" disabled>
+            Select status...
+          </option>
+          {statuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      </Rectangle>
+
       <DateContainer>
         <DateLabel>
           <div>Start Date:</div>
           <DatePickerContainer>
-            <DatePickerStyled selected={startDate} onChange={(date) => setStartDate(date)} />
+            <DatePickerStyled
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+            />
           </DatePickerContainer>
         </DateLabel>
 
         <DateLabel>
           <div>End Date:</div>
           <DatePickerContainer>
-            <DatePickerStyled selected={endDate} onChange={(date) => setEndDate(date)} />
+            <DatePickerStyled
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+            />
           </DatePickerContainer>
         </DateLabel>
       </DateContainer>
+
       <Rectangle>
-            <label>How do you feel?</label>
-            <select value={selectedFeeling} onChange={handleFeelingChange}>
-              <option value="" disabled>Select feeling...</option>
-              {feelings.map((feeling) => (
-                <option key={feeling.name} value={feeling.name}>
-                  {feeling.emoji} {feeling.name}
-                </option>
-              ))}
-            </select>
-          </Rectangle>
+        <label>How do you feel?</label>
+        <select value={selectedFeeling} onChange={handleFeelingChange}>
+          <option value="" disabled>
+            Select feeling...
+          </option>
+          {feelings.map((feeling) => (
+            <option key={feeling.name} value={feeling.name}>
+              {feeling.emoji} {feeling.name}
+            </option>
+          ))}
+        </select>
+      </Rectangle>
+
       <StarRatingContainer>
         <div>Rating:</div>
         {[1, 2, 3, 4, 5].map((star) => (
@@ -253,9 +285,11 @@ const BookPage = () => {
       />
 
       <SubmitButton onClick={handleSubmit}>Submit Review</SubmitButton>
+
+      {/* Add error display */}
+      {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
     </BookPageContainer>
   );
 };
-
 
 export default BookPage;
