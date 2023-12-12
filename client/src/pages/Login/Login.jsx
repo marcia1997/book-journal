@@ -77,10 +77,14 @@ const Login = () => {
       });
 
       if (res.data) {
-        navigate("/home"); // Adjust the path as needed
+        navigate("/home"); 
       }
     } catch (err) {
-      setError(true);
+      if (err.response && err.response.data) {
+        setError(err.response.data); // Set specific error message from the server
+      } else {
+        setError("Something went wrong!"); // Default error message
+      }
       console.error(err);
     }
   };
