@@ -28,6 +28,7 @@ router.post('/register', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
+
 });
 
 // LOGIN - With Password Hashing
@@ -40,7 +41,7 @@ router.post('/login', async (req, res) => {
 
     // Check if the user exists
     if (!user) {
-      return res.status(400).json("Wrong credentials!");
+      return res.status(401).json("User not found");
     }
 
     // Compare the hashed password
@@ -48,7 +49,7 @@ router.post('/login', async (req, res) => {
 
     // Check if the passwords match
     if (!passwordMatch) {
-      return res.status(400).json("Wrong credentials!");
+      return res.status(401).json("Incorrect password");
     }
 
     // Passwords match, send user data excluding the password
@@ -59,5 +60,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json("Internal Server Error");
   }
 });
+
 
 module.exports = router;
