@@ -1,7 +1,7 @@
-// src/pages/Home.js
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import {Link} from 'react-router-dom';
+import Books from '../../components/books';
 
 
 // Define styled components using the provided styles
@@ -28,28 +28,6 @@ const Title = styled.h1`
   font-size: 3.75rem;
 `;
 
-
-const BookGallery = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-`;
-
-const BookItem = styled.li`
-  margin-bottom: 20px;
-  list-style: none;
-  width: calc(33.33% - 10px);
-`;
-
-const BookImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`;
-
 const Button = styled.button`
   display: inline-block;
   color: #BF4F74;
@@ -61,52 +39,18 @@ const Button = styled.button`
   display: block;
 `;
 
-
-
-
 const Home = () => {
   return (
     <HomeContainer>
       <Title>My Bookshelf</Title>
-  
 
-      <BookGallery>
-        <BookItem className="books book--1">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/51t180QSN1L._SX324_BO1,204,203,200_.jpg" alt="Close to the machine" />
-        </BookItem>
-        <BookItem className="books book--2">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/41QRdFWy02L._SX324_BO1,204,203,200_.jpg" alt="21 lessons for the 21th century" />
-        </BookItem>
-        <BookItem className="books book--3">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/51ya6G0fWUL._SX324_BO1,204,203,200_.jpg" alt="Natives Akala" />
-        </BookItem>
-        <BookItem className="books book--1">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/51t180QSN1L._SX324_BO1,204,203,200_.jpg" alt="Close to the machine" />
-        </BookItem>
-        <BookItem className="books book--2">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/41QRdFWy02L._SX324_BO1,204,203,200_.jpg" alt="21 lessons for the 21th century"/>
-        </BookItem>
-        <BookItem className="books book--3">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/51ya6G0fWUL._SX324_BO1,204,203,200_.jpg" alt="Natives Akala" />
-        </BookItem>
-               <BookItem className="books book--1">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/51t180QSN1L._SX324_BO1,204,203,200_.jpg" alt="Close to the machine" />
-        </BookItem>
-        <BookItem className="books book--2">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/41QRdFWy02L._SX324_BO1,204,203,200_.jpg" alt="21 lessons for the 21th century"/>
-        </BookItem>
-        <BookItem className="books book--3">
-          <BookImage src="https://images-na.ssl-images-amazon.com/images/I/51ya6G0fWUL._SX324_BO1,204,203,200_.jpg" alt="Natives Akala" />
-        </BookItem>
+      <Books apiEndpoint="http://localhost:5000/api/books" />
 
-       <Link style={{textDecoration: 'none'}} to='/book'>
-          <Button className="button" >
-           Add book
-          </Button>
-        </Link>
-
-      </BookGallery>
-
+      <Link style={{textDecoration: 'none'}} to='/book'>
+        <Button className="button" >
+          Add book
+        </Button>
+      </Link>
     </HomeContainer>
   );
 };
