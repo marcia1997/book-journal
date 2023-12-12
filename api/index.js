@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -20,10 +21,10 @@ connection.once('open', () => {
 });
 
 //routes
-/*const authRouter = require('./routes/auth');
-const booksRouter = require('./routes/books');*/
+const authRouter = require('./routes/auth');
+const booksRouter = require('./routes/books');
 
-pp.use('/auth', authRouter);
+app.use('/auth', authRouter);
 app.use('/books', booksRouter);
 
 // Start the server
