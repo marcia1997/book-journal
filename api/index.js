@@ -28,7 +28,7 @@ const authRouter = require('./routes/auth');
 const booksRouter = require('./routes/books');
 
 app.use('/auth', authRouter);
-app.use('/books', upload.single('coverImage'), booksRouter); 
+app.use('/api/books', upload.single('coverImage'), booksRouter); 
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
