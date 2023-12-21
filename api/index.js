@@ -1,9 +1,8 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const fileUpload = require('express-fileupload');
+const multer = require('multer'); // Add this line
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -11,7 +10,10 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
-app.use(fileUpload());
+
+// Set up multer storage for file uploads
+const storage = multer.memoryStorage(); // You can adjust the storage configuration based on your requirements
+const upload = multer({ storage: storage });
 
 // MongoDB connection
 mongoose.connect('mongodb+srv://marciadenisevazquez:1234@cluster-book-app.yy6jcgi.mongodb.net/?retryWrites=true&w=majority');
@@ -21,12 +23,12 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
-//routes
+// routes
 const authRouter = require('./routes/auth');
 const booksRouter = require('./routes/books');
 
 app.use('/auth', authRouter);
-app.use('/books', booksRouter);
+app.use('/books', upload.single('coverImage'), booksRouter); // Add upload.single middleware for 'coverImage'
 
 // Start the server
 app.listen(port, () => {
