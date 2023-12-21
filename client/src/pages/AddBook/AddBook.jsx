@@ -25,7 +25,6 @@ const SectionTitle = styled.h2`
 `;
 
 const CoverImageInput = styled.input`
-  display: flex;
   margin-bottom: 10px;
 `;
 
@@ -77,10 +76,12 @@ const SubmitButton = styled.button`
   font-size: 1rem;
   border-radius: 4px;
 `;
+
 const BookImage = styled.img`
   max-width: 150px;
   max-height: 150px;
   border-radius: 2%;
+  margin-top: 20px;
 `;
 
 const DateContainer = styled.div`
@@ -111,7 +112,6 @@ const DatePickerStyled = styled(DatePicker)`
 const BookPage = () => {
   const [bookTitle, setBookTitle] = useState('');
   const [coverImage, setCoverImage] = useState('');
-  const [inputValue, setInputValue] = useState('');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -135,11 +135,7 @@ const BookPage = () => {
   };
 
   const handleInputChange = (e) => {
-    setInputValue(e.target.value);
-  };
-
-  const handleInputSubmit = () => {
-    setBookTitle(inputValue);
+    setBookTitle(e.target.value);
   };
 
   const handleCoverImageChange = (e) => {
@@ -152,10 +148,7 @@ const BookPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!bookTitle) {
-      setError('Please enter a book title.');
-      return;
-    }
+    console.log('Book title submitted:', bookTitle);
 
     // Reset error if validation passes
     setError('');
@@ -169,47 +162,49 @@ const BookPage = () => {
       formData.append('review', review);
       formData.append('coverImage', coverImage);
 
-      // Add more form data as needed
-
-      const response = await Axios.post('http://localhost:5000/api/books', formData, {
-      
-      });
+      const response = await Axios.post('http://localhost:5000/api/books', formData);
 
       console.log('Server response:', response.data);
     } catch (error) {
-      console.error('Error submitting the form:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Server responded with an error:', error.response.data);
+        console.error('Status code:', error.response.status);
+        console.error('Headers:', error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received from the server:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up the request:', error.message);
+      }
+
       setError('An error occurred while submitting the form.');
     }
   };
 
   return (
     <BookPageContainer>
-      {bookTitle ? (
-        // Display the book title as a SectionTitle if available
-        <SectionTitle>{bookTitle}</SectionTitle>
-      ) : (
-        // Display the input fields if the book title is not set
-        <>
-          <TitleInput
-            type="text"
-            placeholder="Enter book title..."
-            value={inputValue}
-            onChange={handleInputChange}
-          />
-          <button onClick={handleInputSubmit}>Submit</button>
+      {bookTitle && <SectionTitle>{bookTitle}</SectionTitle>}
+      <TitleInput
+        type="text"
+        placeholder="Enter book title..."
+        value={bookTitle}
+        onChange={handleInputChange}
+      />
+      <button onClick={handleSubmit}>Submit</button>
 
-          <CoverImageInput
-            type="file"
-            accept="image/*"
-            onChange={handleCoverImageChange}
-          />
-          {coverImage && (
-            <BookImage
-              src={URL.createObjectURL(coverImage)}
-              alt="Selected Cover"
-            />
-          )}
-        </>
+      <CoverImageInput
+        type="file"
+        accept="image/*"
+        onChange={handleCoverImageChange}
+      />
+      {coverImage && (
+        <BookImage
+          src={URL.createObjectURL(coverImage)}
+          alt="Selected Cover"
+        />
       )}
 
       <Rectangle>
@@ -286,7 +281,6 @@ const BookPage = () => {
 
       <SubmitButton onClick={handleSubmit}>Submit Review</SubmitButton>
 
-      {/* Add error display */}
       {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
     </BookPageContainer>
   );
