@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
+const fileUpload = require('express-fileupload');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -11,6 +11,7 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
+app.use(fileUpload());
 
 // MongoDB connection
 mongoose.connect('mongodb+srv://marciadenisevazquez:1234@cluster-book-app.yy6jcgi.mongodb.net/?retryWrites=true&w=majority');

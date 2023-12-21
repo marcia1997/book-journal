@@ -1,4 +1,4 @@
-import React from 'react';
+import React , { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Books from '../../components/books';
@@ -39,11 +39,20 @@ const Button = styled.button`
 `;
 
 const Home = () => {
+  const [books, setBooks] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/books')
+      .then(response => response.json())
+      .then(data => setBooks(data))
+      .catch(error => console.error('Error fetching books:', error));
+  }, []);
+
   return (
     <HomeContainer>
       <Title>My Bookshelf</Title>
 
-      <Books apiEndpoint="http://localhost:5000/books" />
+      <Books books={books} />
 
       <Link style={{textDecoration: 'none'}} to='/book'>
         <Button className="button" >
