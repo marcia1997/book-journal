@@ -1,10 +1,8 @@
-import React , { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Books from '../../components/books';
 
-
-// Define styled components using the provided styles
 const HomeContainer = styled.div`
   color: #333;
   padding: 20px;
@@ -29,33 +27,46 @@ const Title = styled.h1`
 
 const Button = styled.button`
   display: inline-block;
-  color: #BF4F74;
+  color: #bf4f74;
   font-size: 1em;
   margin: 1em;
   padding: 0.25em 1em;
-  border: 2px solid #BF4F74;
+  border: 2px solid #bf4f74;
   border-radius: 3px;
   display: block;
 `;
 
 const Home = () => {
   const [books, setBooks] = useState([]);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:5000/api/books')
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => setBooks(data))
-      .catch(error => console.error('Error fetching books:', error));
+      .catch(error => {
+        console.error('Error fetching books:', error);
+        setFetchError(true);
+      });
   }, []);
 
   return (
     <HomeContainer>
       <Title>My Bookshelf</Title>
 
-      <Books books={books} />
+      {fetchError ? (
+        <p>Error fetching books. Displaying local data.</p>
+      ) : (
+        <Books books={books} />
+      )}
 
-      <Link style={{textDecoration: 'none'}} to='/book'>
-        <Button className="button" >
+      <Link style={{ textDecoration: 'none' }} to='/book'>
+        <Button className="button">
           Add book
         </Button>
       </Link>
