@@ -11,8 +11,24 @@ const BookGallery = styled.ul`
   justify-content: space-between;
 `;
 
+const LoadingMessage = styled.div`
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #666;
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #ff0000;
+`;
+
 const Books = ({ apiEndpoint }) => {
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -26,18 +42,33 @@ const Books = ({ apiEndpoint }) => {
         setBooks(data);
       } catch (error) {
         console.error('Error fetching books:', error.message);
+        setFetchError(true);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBooks();
   }, [apiEndpoint]);
 
+  const staticBooks = [
+    { id: 1, title: 'Local Book 1', imageUrl: 'https://example.com/localbook1.jpg' },
+    { id: 2, title: 'Local Book 2', imageUrl: 'https://example.com/localbook2.jpg' },
+    // Add more local books as needed
+  ];
+
+  const displayBooks = fetchError || loading ? staticBooks : books;
+
   return (
-    <BookGallery>
-      {books.map((book) => (
-        <Book key={book.id} title={book.title} imageUrl={book.imageUrl} />
-      ))}
-    </BookGallery>
+    <>
+      {loading && <LoadingMessage>Loading...</LoadingMessage>}
+      {fetchError && <ErrorMessage>Error fetching books</ErrorMessage>}
+      <BookGallery>
+        {displayBooks.map((book) => (
+          book && <Book key={book.id} title={book.title} imageUrl={book.imageUrl} />
+        ))}
+      </BookGallery>
+    </>
   );
 };
 

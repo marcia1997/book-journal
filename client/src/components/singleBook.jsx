@@ -26,6 +26,10 @@ const BookAuthor = styled.p`
 `;
 
 const Book = ({ book }) => {
+  if (!book || !book.title || !book.author || !book.imageUrl) {
+    return null; // or render a placeholder, error message, etc.
+  }
+
   const { title, author, imageUrl } = book;
 
   return (

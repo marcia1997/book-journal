@@ -3,6 +3,7 @@ import Axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styled from 'styled-components';
+import { useBookContext } from '../../context/BookContext'; // Adjust the path if needed
 
 const BookPageContainer = styled.div`
   max-width: 800px;
@@ -26,6 +27,7 @@ const SectionTitle = styled.h2`
 
 const CoverImageInput = styled.input`
   margin-bottom: 10px;
+  display: flex;
 `;
 
 const Rectangle = styled.div`
@@ -112,8 +114,8 @@ const DatePickerStyled = styled(DatePicker)`
 const BookPage = () => {
   const [bookTitle, setBookTitle] = useState('');
   const [coverImage, setCoverImage] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedFeeling, setSelectedFeeling] = useState(null);
   const [rating, setRating] = useState(0);
@@ -121,6 +123,7 @@ const BookPage = () => {
   const [error, setError] = useState('');
 
   const statuses = ['Wish', 'Currently Reading', 'Stop it', 'Read'];
+  const { dispatch } = useBookContext(); // Obtain the context dispatcher
 
   const handleRatingChange = (event) => {
     setRating(parseInt(event.target.value, 10));
@@ -162,25 +165,54 @@ const BookPage = () => {
       formData.append('review', review);
       formData.append('coverImage', coverImage);
 
-      const response = await Axios.post('http://localhost:5000/api/books', formData);
+      const response = await Axios.post('http://localhost:5000/api/books', formData, {
+        withCredentials: true,
+      });
 
       console.log('Server response:', response.data);
+
+      // MongoDB integration - save the book to MongoDB
+  
+      const newBook = {
+        title: response.data.title,
+        startDate: response.data.startDate,
+        endDate: response.data.endDate,
+        rating: response.data.rating,
+        review: response.data.review,
+        coverImage: response.data.coverImage,
+      };
+
+      // Utilize the dispatcher to add the book to the global state
+      dispatch({
+        type: 'ADD_BOOK',
+        payload: newBook,
+      });
+
     } catch (error) {
+      console.error('Error in handleSubmit:', error);
+
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.error('Server responded with an error:', error.response.data);
-        console.error('Status code:', error.response.status);
-        console.error('Headers:', error.response.headers);
+        console.error('Server responded with error data:', error.response.data);
+        console.error('Server responded with status code:', error.response.status);
+        console.error('Server responded with headers:', error.response.headers);
+
+        // You can set the error state with a more meaningful message
+        setError(`Server responded with error: ${error.response.data.message || 'Unknown error'}`);
       } else if (error.request) {
         // The request was made but no response was received
         console.error('No response received from the server:', error.request);
+
+        // You can set the error state with a more meaningful message
+        setError('No response received from the server');
       } else {
         // Something happened in setting up the request that triggered an Error
         console.error('Error setting up the request:', error.message);
-      }
 
-      setError('An error occurred while submitting the form.');
+        // You can set the error state with a more meaningful message
+        setError(`Error setting up the request: ${error.message}`);
+      }
     }
   };
 
