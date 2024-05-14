@@ -3,7 +3,7 @@ import Axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styled from 'styled-components';
-import { useBookContext } from '../../context/BookContext'; // Adjust the path if needed
+import { useBookContext, ActionTypes } from '../../context/BookContext'; // Adjust the path if needed
 
 const BookPageContainer = styled.div`
   max-width: 800px;
@@ -117,13 +117,13 @@ const BookPage = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
-  const [selectedFeeling, setSelectedFeeling] = useState(null);
+  const [selectedFeeling, setSelectedFeeling] = useState('');
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [error, setError] = useState('');
 
   const statuses = ['Wish', 'Currently Reading', 'Stop it', 'Read'];
-  const { dispatch } = useBookContext(); // Obtain the context dispatcher
+  const { dispatch, actions } = useBookContext(); // Obtain the context dispatcher
 
   const handleRatingChange = (event) => {
     setRating(parseInt(event.target.value, 10));
@@ -157,8 +157,16 @@ const BookPage = () => {
     setError('');
 
     try {
+      // Ensure all required fields are provided
+      if (!bookTitle || !selectedStatus || !selectedFeeling || !startDate || !endDate || !coverImage) {
+        setError('Please fill in all required fields.');
+        return;
+      }
+
       const formData = new FormData();
-      formData.append('bookTitle', bookTitle);
+      formData.append('title', bookTitle);
+      formData.append('status', selectedStatus);
+      formData.append('feeling', selectedFeeling);
       formData.append('startDate', startDate.toISOString());
       formData.append('endDate', endDate.toISOString());
       formData.append('rating', rating);
@@ -172,7 +180,6 @@ const BookPage = () => {
       console.log('Server response:', response.data);
 
       // MongoDB integration - save the book to MongoDB
-  
       const newBook = {
         title: response.data.title,
         startDate: response.data.startDate,
@@ -184,35 +191,17 @@ const BookPage = () => {
 
       // Utilize the dispatcher to add the book to the global state
       dispatch({
-        type: 'ADD_BOOK',
+        type: ActionTypes.ADD_BOOK,
         payload: newBook,
       });
 
     } catch (error) {
       console.error('Error in handleSubmit:', error);
-
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.error('Server responded with error data:', error.response.data);
-        console.error('Server responded with status code:', error.response.status);
-        console.error('Server responded with headers:', error.response.headers);
-
-        // You can set the error state with a more meaningful message
-        setError(`Server responded with error: ${error.response.data.message || 'Unknown error'}`);
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('No response received from the server:', error.request);
-
-        // You can set the error state with a more meaningful message
-        setError('No response received from the server');
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.error('Error setting up the request:', error.message);
-
-        // You can set the error state with a more meaningful message
-        setError(`Error setting up the request: ${error.message}`);
-      }
+      // Handle errors as before
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: error.message,
+      });
     }
   };
 
