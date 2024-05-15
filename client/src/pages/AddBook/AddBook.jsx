@@ -3,7 +3,7 @@ import Axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styled from 'styled-components';
-import { useBookContext, ActionTypes } from '../../context/BookContext'; // Adjust the path if needed
+import { useBookContext, ActionTypes } from '../../context/BookContext'; 
 
 const BookPageContainer = styled.div`
   max-width: 800px;
@@ -214,7 +214,7 @@ const BookPage = () => {
         value={bookTitle}
         onChange={handleInputChange}
       />
-      <button onClick={handleSubmit}>Submit</button>
+      <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
 
       <CoverImageInput
         type="file"
