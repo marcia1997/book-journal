@@ -1,6 +1,5 @@
-// BookContext.js
 import React, { createContext, useReducer, useContext } from 'react';
-import axios from 'axios';
+import Axios from 'axios';
 
 const BookContext = createContext();
 
@@ -20,7 +19,7 @@ const bookReducer = (state, action) => {
       return {
         ...state,
         books: [...state.books, action.payload],
-        error: null, // Clear error on successful action
+        error: null,
       };
     case ActionTypes.SET_ERROR:
       return {
@@ -35,29 +34,9 @@ const bookReducer = (state, action) => {
 const BookProvider = ({ children }) => {
   const [state, dispatch] = useReducer(bookReducer, initialState);
 
-  const addBook = async (bookData) => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/books', bookData);
-
-      dispatch({
-        type: ActionTypes.ADD_BOOK,
-        payload: response.data,
-      });
-    } catch (error) {
-      console.error('Error adding book:', error);
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: error.message,
-      });
-    }
-  };
-
   const contextValue = {
     state,
     dispatch,
-    actions: {
-      addBook,
-    },
   };
 
   return (
@@ -76,4 +55,3 @@ const useBookContext = () => {
 };
 
 export { BookProvider, useBookContext, ActionTypes };
-
