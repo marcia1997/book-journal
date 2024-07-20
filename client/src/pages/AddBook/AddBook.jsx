@@ -123,7 +123,7 @@ const BookPage = () => {
   const [error, setError] = useState('');
 
   const statuses = ['Wish', 'Currently Reading', 'Stop it', 'Read'];
-  const { dispatch, actions } = useBookContext(); // Obtain the context dispatcher
+  const { dispatch } = useBookContext(); // Obtain the context dispatcher
 
   const handleRatingChange = (event) => {
     setRating(parseInt(event.target.value, 10));

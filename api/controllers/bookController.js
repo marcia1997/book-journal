@@ -1,48 +1,51 @@
 const multer = require('multer');
 const Book = require('./models/book');
 
-const upload = multer().single('coverImage');
+// Multer configuration for handling file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single('coverImage');
 
 // Controller for creating a new book with form data and file upload
 const createBook = async (req, res) => {
   try {
     upload(req, res, async (err) => {
-      if (err instanceof multer.MulterError) {
-        // A multer error occurred
-        console.error('Multer Error:', err);
-        res.status(400).json({ error: 'Invalid request' });
-      } else if (err) {
+      if (err) {
+        if (err instanceof multer.MulterError) {
+          // A multer error occurred
+          console.error('Multer Error:', err);
+          return res.status(400).json({ error: 'Invalid request' });
+        }
         // An unknown error occurred
         console.error('Unknown Error:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        // No multer error, proceed with creating the book
-        const { title, startDate, endDate, status, feeling, rating, review } = req.body;
-
-        // Access the file (coverImage) from the request
-        const { buffer, mimetype } = req.file;
-
-        // Create a new book instance
-        const newBook = new Book({
-          title,
-          startDate,
-          endDate,
-          status,
-          feeling,
-          rating,
-          review,
-          coverImage: {
-            data: buffer,
-            contentType: mimetype,
-          },
-        });
-
-        // Save the new book to the database
-        const savedBook = await newBook.save();
-
-        // Respond with the saved book data
-        res.json(savedBook);
+        return res.status(500).json({ error: 'Internal Server Error' });
       }
+
+      // No multer error, proceed with creating the book
+      const { title, startDate, endDate, status, feeling, rating, review } = req.body;
+
+      // Access the file (coverImage) from the request
+      const { buffer, mimetype } = req.file;
+
+      // Create a new book instance
+      const newBook = new Book({
+        title,
+        startDate,
+        endDate,
+        status,
+        feeling,
+        rating,
+        review,
+        coverImage: {
+          data: buffer,
+          contentType: mimetype,
+        },
+      });
+
+      // Save the new book to the database
+      const savedBook = await newBook.save();
+
+      // Respond with the saved book data
+      res.json(savedBook);
     });
   } catch (error) {
     handleServerError(res, error);
@@ -110,6 +113,7 @@ const deleteBookById = async (req, res) => {
   }
 };
 
+// Helper function for handling server errors
 const handleServerError = (res, error) => {
   console.error('Error:', error);
   res.status(500).json({ error: 'Internal Server Error' });

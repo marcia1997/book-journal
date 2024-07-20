@@ -26,7 +26,7 @@ connection.once('open', () => {
 const authRouter = require('./routes/auth');
 const booksRouter = require('./routes/books');
 app.use('/auth', authRouter);
-app.use('/api/books', booksRouter);
+app.use('/books', booksRouter);
 
 // Set up multer storage for file uploads
 const storage = multer.memoryStorage();
