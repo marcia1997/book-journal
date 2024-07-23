@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
+
 // Handle user registration
 router.post('/register', async (req, res) => {
   try {

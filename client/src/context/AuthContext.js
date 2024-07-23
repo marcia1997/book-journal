@@ -1,6 +1,5 @@
-// Context.js
-
-import React, { createContext, useReducer, useRef } from 'react';
+// AuthContext.js
+import React, { createContext, useReducer, useRef, useEffect } from 'react';
 import axios from 'axios';
 
 // Definir el estado inicial del contexto
@@ -51,6 +50,28 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     dispatch({ type: 'LOGOUT' });
   };
+
+  // Función para verificar la autenticación al cargar la página
+  const checkAuth = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        const res = await axios.get('/auth/check-auth', {
+          headers: {
+            Authorization: token,
+          },
+        });
+        dispatch({ type: 'LOGIN_SUCCESS', payload: res.data });
+      }
+    } catch (error) {
+      console.error('Authentication error:', error);
+      dispatch({ type: 'LOGOUT' });
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []); // Run once on component mount
 
   return (
     <AuthContext.Provider value={{ ...state, login, logout, userRef }}>
