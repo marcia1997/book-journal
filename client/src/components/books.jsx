@@ -39,7 +39,7 @@ const Book = ({ title, imageUrl }) => (
   </BookContainer>
 );
 
-const Books = ({ apiEndpoint = 'http://localhost:5000' }) => {
+const Books = ({ apiEndpoint = 'http://localhost:5000/api/books' }) => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -47,9 +47,9 @@ const Books = ({ apiEndpoint = 'http://localhost:5000' }) => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch(`${apiEndpoint}/books`);
+        const response = await fetch(apiEndpoint);
         if (!response.ok) {
-          throw new Error('Failed to fetch books');
+          throw new Error(`Failed to fetch books, status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -75,7 +75,7 @@ const Books = ({ apiEndpoint = 'http://localhost:5000' }) => {
   return (
     <>
       {loading && <LoadingMessage>Loading...</LoadingMessage>}
-      {fetchError && <ErrorMessage>Error fetching books</ErrorMessage>}
+      {fetchError && <ErrorMessage>Error fetching books. Please try again later.</ErrorMessage>}
       <BookGallery>
         {displayBooks.map((book) => (
           book && <Book key={book.id} title={book.title} imageUrl={book.imageUrl} />
