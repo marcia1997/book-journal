@@ -214,7 +214,6 @@ const BookPage = () => {
         value={bookTitle}
         onChange={handleInputChange}
       />
-      <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
 
       <CoverImageInput
         type="file"
@@ -308,3 +307,4 @@ const BookPage = () => {
 };
 
 export default BookPage;
+
