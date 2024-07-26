@@ -39,7 +39,7 @@ const Book = ({ title, imageUrl }) => (
   </BookContainer>
 );
 
-const Books = ({ apiEndpoint = 'http://localhost:5000/api/books' }) => {
+const Books = ({ apiEndpoint = 'http://localhost:5000/books' }) => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
