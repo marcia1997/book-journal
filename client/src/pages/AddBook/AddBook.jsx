@@ -173,7 +173,7 @@ const BookPage = () => {
       formData.append('review', review);
       formData.append('coverImage', coverImage);
 
-      const response = await Axios.post('http://localhost:5000/api/books', formData, {
+      const response = await Axios.post('http://localhost:5000/books', formData, {
         withCredentials: true,
       });
 
