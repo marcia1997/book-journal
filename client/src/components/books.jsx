@@ -66,6 +66,7 @@ const Books = ({ apiEndpoint = 'http://localhost:5000/books' }) => {
   }, [apiEndpoint]);
 
   const staticBooks = [
+    { id: 1, title: 'Local Book 1', imageUrl: '' },
     { id: 2, title: 'Local Book 2', imageUrl: 'https://example.com/localbook2.jpg' },
   ];
 
