@@ -1,5 +1,5 @@
 // controllers/bookController.js
-const Book = require('./models/Book'); // Import your Book model
+const Book = require('../models/Book'); // Import your Book model
 
 
 // Controller for creating a new book with form data and file upload

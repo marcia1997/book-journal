@@ -1,40 +1,80 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const fileUpload = require('express-fileupload');
-const cors = require('cors');
 const multer = require('multer');
+const dotenv = require('dotenv');
+const cors = require('cors');
+
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5000;
-
-// Middleware
 app.use(express.json());
-app.use(fileUpload());
+
+// CORS configuration
 app.use(cors({
   origin: 'http://localhost:3000', 
-  credentials: true,
+  credentials: true, 
 }));
 
-// Set up multer storage for file uploads
+// Multer setup for file upload
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 // MongoDB connection
-mongoose.connect("mongodb+srv://marciadenisevazquez:1234@cluster-book-app.yy6jcgi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-book-app");
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 
-const connection = mongoose.connection;
-connection.once('open', () => {
-  console.log('MongoDB database connection established successfully');
+// Define Book model
+const bookSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  status: { type: String, required: true },
+  feeling: { type: String, required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  rating: String,
+  review: String,
+  coverImage: {
+    data: Buffer,
+    contentType: String,
+  },
 });
 
-// routes
-const authRouter = require('./routes/auth.js');
-const booksRouter = require('./routes/books.js');
+const Book = mongoose.model('Book', bookSchema);
 
-app.use('/auth', authRouter);
-app.use('/books', upload.single('coverImage'), booksRouter); 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
+// Endpoint for creating a new book
+app.post('/books', upload.single('coverImage'), async (req, res) => {
+  try {
+    const { title, status, feeling, startDate, endDate, rating, review } = req.body;
+    const coverImage = req.file;
+
+    if (!title || !status || !feeling || !startDate || !endDate || !coverImage) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    const newBook = new Book({
+      title,
+      status,
+      feeling,
+      startDate,
+      endDate,
+      rating,
+      review,
+      coverImage: {
+        data: coverImage.buffer,
+        contentType: coverImage.mimetype,
+      },
+    });
+
+    const savedBook = await newBook.save();
+    res.status(201).json(savedBook);
+  } catch (error) {
+    console.error('Error saving book:', error);
+    res.status(500).send('Failed to save book');
+  }
 });
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
