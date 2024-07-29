@@ -12,7 +12,7 @@ app.use(express.json());
 // CORS configuration
 app.use(cors({
   origin: 'http://localhost:3000', 
-  credentials: true, 
+  credentials: true, // Allow credentials
 }));
 
 // Multer setup for file upload
