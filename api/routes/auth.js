@@ -1,66 +1,53 @@
+// routes/auth.js
 const express = require('express');
-const router = express.Router();
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
+const router = express.Router();
+const secretKey = process.env.JWT_SECRET || 'your_jwt_secret';
 
-// Handle user registration
+// Register new user
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user with the hashed password
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
     });
 
-    // Save the user to the database
     const savedUser = await newUser.save();
-
-    // Respond with a customized user object (excluding the password)
-    const { password: _, ...userWithoutPassword } = savedUser._doc;
-    res.json(userWithoutPassword);
+    res.status(201).json(savedUser);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error registering user:', error);
+    res.status(500).json({ error: 'Registration failed' });
   }
-
 });
 
-// LOGIN - With Password Hashing
+// Login user
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-
-    // Find the user in the database by username
     const user = await User.findOne({ username });
 
-    // Check if the user exists
     if (!user) {
-      return res.status(401).json("User not found");
+      return res.status(400).json({ error: 'Invalid credentials' }); // User not found
     }
 
-    // Compare the hashed password
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    // Check if the passwords match
-    if (!passwordMatch) {
-      return res.status(401).json("Incorrect password");
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Invalid credentials' }); // Incorrect password
     }
 
-    // Passwords match, send user data excluding the password
-    const { password: _, ...userWithoutPassword } = user._doc;
-    res.status(200).json(userWithoutPassword);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json("Internal Server Error");
+    const token = jwt.sign({ id: user._id, username: user.username }, secretKey, { expiresIn: '1h' });
+    res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(500).json({ error: 'Login failed' });
   }
 });
-
 
 module.exports = router;

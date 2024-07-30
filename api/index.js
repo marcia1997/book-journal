@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const authRouter = require('./routes/auth.js');
+
 
 dotenv.config();
 
@@ -26,6 +28,11 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
+
+//Auth 
+app.use('/auth', authRouter);
+
+
 
 // Define Book model
 const bookSchema = new mongoose.Schema({
