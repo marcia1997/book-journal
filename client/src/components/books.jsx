@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const LoadingMessage = styled.div`
   font-size: 1.5rem;
@@ -41,23 +42,26 @@ const Book = ({ title, imageUrl }) => (
 
 const Books = ({ apiEndpoint = 'http://localhost:5000/books' }) => {
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState(false);
+  const [loading, setLoading] = useState(true); // Track loading state
+  const [error, setError] = useState(null); // Track error state
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch(apiEndpoint);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch books, status: ${response.status}`);
+        const token = localStorage.getItem('token'); // Assuming token is stored in local storage
+        const response = await axios.get(apiEndpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (response.status === 404) {
+          throw new Error('Books not found');
         }
-
-        const data = await response.json();
-        setBooks(data);
+        setBooks(response.data);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching books:', error.message);
-        setFetchError(true);
-      } finally {
+        console.error('Error fetching books:', error);
+        setError(error);
         setLoading(false);
       }
     };
@@ -65,23 +69,18 @@ const Books = ({ apiEndpoint = 'http://localhost:5000/books' }) => {
     fetchBooks();
   }, [apiEndpoint]);
 
-  const staticBooks = [
-    { id: 1, title: 'Local Book 1', imageUrl: '' },
-    { id: 2, title: 'Local Book 2', imageUrl: 'https://example.com/localbook2.jpg' },
-  ];
-
-  const displayBooks = fetchError || loading ? staticBooks : books;
+  if (loading) return <LoadingMessage>Loading...</LoadingMessage>;
+  if (error) return <ErrorMessage>{error.message}</ErrorMessage>;
 
   return (
-    <>
-      {loading && <LoadingMessage>Loading...</LoadingMessage>}
-      {fetchError && <ErrorMessage>Error fetching books. Please try again later.</ErrorMessage>}
+    <div>
+      <h1>My Books</h1>
       <BookGallery>
-        {displayBooks.map((book) => (
-          book && <Book key={book.id} title={book.title} imageUrl={book.imageUrl} />
+        {books.map((book) => (
+          <Book key={book._id} title={book.title} imageUrl={book.imageUrl || 'default.jpg'} />
         ))}
       </BookGallery>
-    </>
+    </div>
   );
 };
 
