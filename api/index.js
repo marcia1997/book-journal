@@ -83,5 +83,16 @@ app.post('/books', upload.single('coverImage'), async (req, res) => {
   }
 });
 
+//get all
+app.get('/books', async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.json(books);
+  } catch (error) {
+    console.error('Error retrieving books:', error);
+    res.status(500).json({ error: 'Failed to retrieve books' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

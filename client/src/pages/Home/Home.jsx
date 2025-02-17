@@ -37,36 +37,16 @@ const Button = styled.button`
 `;
 
 const Home = () => {
-  const [books, setBooks] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/books')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => setBooks(data))
-      .catch(error => {
-        console.error('Error fetching books:', error);
-        setError(error.message);
-      });
-  }, []);
-
   return (
     <HomeContainer>
       <Title>My Bookshelf</Title>
-      {error && <p>Error fetching books: {error}</p>}
-      <Books books={books} />
+      <Books apiEndpoint="http://localhost:5000/api/books" />
       <Link style={{ textDecoration: 'none' }} to='/book'>
-        <Button className="button">
-          Add book
-        </Button>
+        <Button>Add book</Button>
       </Link>
     </HomeContainer>
   );
 };
 
 export default Home;
+

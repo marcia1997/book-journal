@@ -40,28 +40,36 @@ const Book = ({ title, imageUrl }) => (
   </BookContainer>
 );
 
-const Books = ({ apiEndpoint = 'http://localhost:5000/books' }) => {
+const Books = ({ apiEndpoint = 'http://localhost:5000/api/books' }) => {
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true); // Track loading state
-  const [error, setError] = useState(null); // Track error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const token = localStorage.getItem('token'); // Assuming token is stored in local storage
-        const response = await axios.get(apiEndpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (response.status === 404) {
-          throw new Error('Books not found');
-        }
+        const token = localStorage.getItem('token'); 
+        console.log("Token obtenido:", token); 
+
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        let response = await axios.get(apiEndpoint, { headers });
         setBooks(response.data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching books:', error);
-        setError(error);
+        
+        if (error.response?.status === 404) {
+          console.log("Intentando sin /api...");
+          try {
+            const response = await axios.get('http://localhost:5000/books');
+            setBooks(response.data);
+          } catch (err) {
+            setError('No se pudieron cargar los libros. Verifica el servidor.');
+          }
+        } else {
+          setError('Error al obtener los libros.');
+        }
+      } finally {
         setLoading(false);
       }
     };
@@ -70,18 +78,23 @@ const Books = ({ apiEndpoint = 'http://localhost:5000/books' }) => {
   }, [apiEndpoint]);
 
   if (loading) return <LoadingMessage>Loading...</LoadingMessage>;
-  if (error) return <ErrorMessage>{error.message}</ErrorMessage>;
+  if (error) return <ErrorMessage>{error}</ErrorMessage>;
 
   return (
     <div>
       <h1>My Books</h1>
       <BookGallery>
-        {books.map((book) => (
-          <Book key={book._id} title={book.title} imageUrl={book.imageUrl || 'default.jpg'} />
-        ))}
+        {books.length > 0 ? (
+          books.map((book) => (
+            <Book key={book._id} title={book.title} imageUrl={book.coverImage ? `data:${book.coverImage.contentType};base64,${book.coverImage.data}` : 'default.jpg'} />
+          ))
+        ) : (
+          <p>No books found.</p>
+        )}
       </BookGallery>
     </div>
   );
 };
 
 export default Books;
+
