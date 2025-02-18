@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import styled from 'styled-components';
 import { useBookContext, ActionTypes } from '../../context/BookContext'; 
 
+
 const BookPageContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
@@ -44,30 +45,6 @@ const feelings = [
   { emoji: '😍', name: 'Excited' },
   { emoji: '😕', name: 'Confused' },
 ];
-
-const StarRatingContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const Star = styled.span`
-  font-size: 1.5rem;
-  color: #ffd700;
-  margin-right: 5px;
-`;
-
-const StarInput = styled.input`
-  font-size: 1.5rem;
-  margin-right: 5px;
-`;
-
-const ReviewTextArea = styled.textarea`
-  width: 100%;
-  height: 100px;
-  resize: vertical;
-  margin-bottom: 20px;
-`;
 
 const SubmitButton = styled.button`
   background: linear-gradient(45deg, #ff00cc, #3333cc);
@@ -113,7 +90,7 @@ const DatePickerStyled = styled(DatePicker)`
 
 const BookPage = () => {
   const [bookTitle, setBookTitle] = useState('');
-  const [coverImage, setCoverImage] = useState('');
+  const [coverImage, setCoverImage] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -122,47 +99,19 @@ const BookPage = () => {
   const [review, setReview] = useState('');
   const [error, setError] = useState('');
 
+  const { dispatch } = useBookContext(); // ✅ Obtiene el contexto correctamente
+
   const statuses = ['Wish', 'Currently Reading', 'Stop it', 'Read'];
-  const { dispatch } = useBookContext(); // Obtain the context dispatcher
-
-  const handleRatingChange = (event) => {
-    setRating(parseInt(event.target.value, 10));
-  };
-
-  const handleReviewChange = (event) => {
-    setReview(event.target.value);
-  };
-
-  const handleFeelingChange = (event) => {
-    setSelectedFeeling(event.target.value);
-  };
-
-  const handleInputChange = (e) => {
-    setBookTitle(e.target.value);
-  };
-
-  const handleCoverImageChange = (e) => {
-    const file = e.target.files[0];
-    setCoverImage(file);
-  };
-
-  const handleStatusChange = (event) => {
-    setSelectedStatus(event.target.value);
-  };
 
   const handleSubmit = async () => {
-    console.log('Book title submitted:', bookTitle);
+    setError(''); // Reset error before validation
 
-    // Reset error if validation passes
-    setError('');
+    if (!bookTitle || !selectedStatus || !selectedFeeling || !startDate || !endDate || !coverImage) {
+      setError('Please fill in all required fields.');
+      return;
+    }
 
     try {
-      // Ensure all required fields are provided
-      if (!bookTitle || !selectedStatus || !selectedFeeling || !startDate || !endDate || !coverImage) {
-        setError('Please fill in all required fields.');
-        return;
-      }
-
       const formData = new FormData();
       formData.append('title', bookTitle);
       formData.append('status', selectedStatus);
@@ -179,29 +128,14 @@ const BookPage = () => {
 
       console.log('Server response:', response.data);
 
-      // MongoDB integration - save the book to MongoDB
-      const newBook = {
-        title: response.data.title,
-        startDate: response.data.startDate,
-        endDate: response.data.endDate,
-        rating: response.data.rating,
-        review: response.data.review,
-        coverImage: response.data.coverImage,
-      };
-
-      // Utilize the dispatcher to add the book to the global state
       dispatch({
-        type: ActionTypes.ADD_BOOK,
-        payload: newBook,
+        type: 'ADD_BOOK', 
+        payload: response.data,
       });
 
     } catch (error) {
-      console.error('Error in handleSubmit:', error);
-      // Handle errors as before
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: error.message,
-      });
+      console.error('Error submitting book:', error);
+      setError('Failed to submit the book. Try again.');
     }
   };
 
@@ -212,14 +146,15 @@ const BookPage = () => {
         type="text"
         placeholder="Enter book title..."
         value={bookTitle}
-        onChange={handleInputChange}
+        onChange={(e) => setBookTitle(e.target.value)}
       />
 
       <CoverImageInput
         type="file"
         accept="image/*"
-        onChange={handleCoverImageChange}
+        onChange={(e) => setCoverImage(e.target.files[0])}
       />
+      
       {coverImage && (
         <BookImage
           src={URL.createObjectURL(coverImage)}
@@ -229,14 +164,10 @@ const BookPage = () => {
 
       <Rectangle>
         <label>Book Status:</label>
-        <select value={selectedStatus} onChange={handleStatusChange}>
-          <option value="" disabled>
-            Select status...
-          </option>
+        <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+          <option value="" disabled>Select status...</option>
           {statuses.map((status) => (
-            <option key={status} value={status}>
-              {status}
-            </option>
+            <option key={status} value={status}>{status}</option>
           ))}
         </select>
       </Rectangle>
@@ -245,30 +176,22 @@ const BookPage = () => {
         <DateLabel>
           <div>Start Date:</div>
           <DatePickerContainer>
-            <DatePickerStyled
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-            />
+            <DatePickerStyled selected={startDate} onChange={setStartDate} />
           </DatePickerContainer>
         </DateLabel>
 
         <DateLabel>
           <div>End Date:</div>
           <DatePickerContainer>
-            <DatePickerStyled
-              selected={endDate}
-              onChange={(date) => setEndDate(date)}
-            />
+            <DatePickerStyled selected={endDate} onChange={setEndDate} />
           </DatePickerContainer>
         </DateLabel>
       </DateContainer>
 
       <Rectangle>
         <label>How do you feel?</label>
-        <select value={selectedFeeling} onChange={handleFeelingChange}>
-          <option value="" disabled>
-            Select feeling...
-          </option>
+        <select value={selectedFeeling} onChange={(e) => setSelectedFeeling(e.target.value)}>
+          <option value="" disabled>Select feeling...</option>
           {feelings.map((feeling) => (
             <option key={feeling.name} value={feeling.name}>
               {feeling.emoji} {feeling.name}
@@ -277,34 +200,11 @@ const BookPage = () => {
         </select>
       </Rectangle>
 
-      <StarRatingContainer>
-        <div>Rating:</div>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <label key={star}>
-            <Star>&#9733;</Star>
-            <StarInput
-              type="radio"
-              name="rating"
-              value={star}
-              checked={rating === star}
-              onChange={handleRatingChange}
-            />
-          </label>
-        ))}
-      </StarRatingContainer>
-
-      <ReviewTextArea
-        placeholder="Write your review..."
-        value={review}
-        onChange={handleReviewChange}
-      />
-
       <SubmitButton onClick={handleSubmit}>Submit Review</SubmitButton>
 
-      {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+      {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
     </BookPageContainer>
   );
 };
 
 export default BookPage;
-

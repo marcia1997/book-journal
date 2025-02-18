@@ -83,7 +83,6 @@ app.post('/books', upload.single('coverImage'), async (req, res) => {
   }
 });
 
-//get all
 app.get('/books', async (req, res) => {
   try {
     const books = await Book.find();
